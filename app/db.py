@@ -9,7 +9,7 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # جدول کاربران
+    # users table
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,7 +19,7 @@ def init_db():
         )
     ''')
 
-    # جدول پرامپت‌های آماده
+    # defult prompt table
     c.execute('''
         CREATE TABLE IF NOT EXISTS predefined_prompts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +27,7 @@ def init_db():
         )
     ''')
 
-    # جدول پرامپت‌های کاربران به همراه تصویر و وضعیت لایک
+    # user history table
     c.execute('''
         CREATE TABLE IF NOT EXISTS user_prompts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
