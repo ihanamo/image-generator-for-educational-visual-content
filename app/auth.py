@@ -5,13 +5,13 @@ from db import add_user, get_user_by_email
 from utils import hash_password, check_password
 
 
-# تابع بررسی فرمت ایمیل
+# email format
 def is_valid_email(email):
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(email_regex, email) is not None
 
 
-# فرم ثبت‌نام
+# register form
 def signup():
     st.subheader("📋 ثبت‌نام")
 
@@ -30,7 +30,7 @@ def signup():
         elif not is_valid_email(email):
             st.error("فرمت ایمیل وارد شده معتبر نیست.")
         else:
-            # بررسی تکراری بودن ایمیل
+            # duplicate email
             existing_user = get_user_by_email(email)
             if existing_user:
                 st.error("این ایمیل قبلاً ثبت شده است.")
@@ -43,7 +43,7 @@ def signup():
                     st.error("مشکلی در ثبت‌نام پیش آمده است.")
 
 
-# فرم ورود
+# login form
 def login():
     st.subheader("🔐 ورود")
 
@@ -58,7 +58,7 @@ def login():
         else:
             user = get_user_by_email(email)
             if user:
-                if check_password(password, user[3]):  # ستون ۳: رمز عبور هش‌شده
+                if check_password(password, user[3]):
                     st.session_state.user = {
                         "id": user[0],
                         "name": user[1],
