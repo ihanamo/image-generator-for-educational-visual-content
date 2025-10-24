@@ -8,17 +8,17 @@ from auth import signup, login
 from prompt_ui import prompt_input_ui 
 from tst import prompt_input_ui_test
 
-# تنظیمات اولیه
+# config
 st.set_page_config(page_title="AI Image Generator", page_icon="🎨")
 
-# اجرای تابع ساخت دیتابیس
+# db initialize
 if "db_initialized" not in st.session_state:
     init_db()
     st.session_state.db_initialized = True
 
 st.title("🧠 سامانه تولید تصویر با هوش مصنوعی")
 
-# بررسی وضعیت ورود
+# login state
 if "user" not in st.session_state:
     tab1, tab2 = st.tabs(["🔐 ورود", "📝 ثبت‌نام"])
     with tab1:
@@ -28,7 +28,7 @@ if "user" not in st.session_state:
 else:
     user = st.session_state.user
 
-    # اگر کاربر به صورت tuple ذخیره شده، تبدیلش کن به dict
+
     if isinstance(user, tuple):
         user = {
             "id": user[0],
@@ -40,32 +40,32 @@ else:
 
     st.success(f"خوش آمدی {user['name']} 🌟")
     
-    # اضافه کردن تب‌های جدید برای ویرایش و انتخاب پرامپت و تاریخچه
+    # new tab
     tab3, tab4, tab5, tab6 = st.tabs(["📝 تولید تصویر", "🔄 مدیریت پرامپت‌ها", "📸 هیستوری تصاویر", "📖 راهنما"])
     
-    # تب برای تولید تصویر
+    # image generator tab
     with tab3:
         # prompt_input_ui(user['id'])
         prompt_input_ui_test(user['id'])
 
     
-    # تب برای مدیریت پرامپت‌ها
+    # prompt manage tab
     with tab4:
         st.subheader("📝 مدیریت پرامپت‌ها")
         
-        # دریافت پرامپت‌های پیش‌فرض
+        # defult prompt
         predefined = get_predefined_prompts()
         predefined_prompts = [p[1] for p in predefined]
         
         selected = st.selectbox("یکی از پرامپت‌های آماده را انتخاب کن:", predefined_prompts)
         
-        # ویرایش پرامپت انتخاب شده
+        # edit defult prompt
         if selected:
             edited_prompt = st.text_area("ویرایش پرامپت:", selected)
             if st.button("ذخیره تغییرات"):
                 for p in predefined:
                     if p[1] == selected:
-                        # تغییر پرامپت در دیتابیس
+                        # edit prompt in db
                         conn = sqlite3.connect(DB_PATH)
                         c = conn.cursor()
                         c.execute("UPDATE predefined_prompts SET prompt = ? WHERE id = ?", (edited_prompt, p[0]))
@@ -74,7 +74,7 @@ else:
                         st.success("تغییرات با موفقیت ذخیره شد!")
                         break
         
-        # اضافه کردن پرامپت جدید
+        # add new prompt
         new_prompt = st.text_input("یک پرامپت جدید وارد کنید:")
         if st.button("افزودن پرامپت جدید"):
             if new_prompt:
@@ -87,7 +87,7 @@ else:
             else:
                 st.warning("لطفاً پرامپت جدید را وارد کنید.")
     
-    # تب برای نمایش تاریخچه پرامپت‌ها
+    # history prompt tab
     with tab5:
         st.subheader("📸 هیستوری تصاویر تولیدشده")
 
@@ -108,19 +108,17 @@ else:
                 st.markdown(f"**📝 پرامپت:** {prompt}")
 
             try:
-                # اگر image_url مسیر لوکال باشه
                 if os.path.exists(image_url):
                     with open(image_url, "rb") as f:
                         image_bytes = f.read()
                 else:
-                    # اگر image_url لینک اینترنتی باشه
                     response = requests.get(image_url)
                     response.raise_for_status()
                     image_bytes = response.content
 
                 st.image(image_bytes, width=256)
 
-                # دکمه دانلود
+                # download button
                 st.download_button(
                     label="📥 دانلود تصویر",
                     data=image_bytes,
@@ -131,7 +129,6 @@ else:
             except Exception as e:
                 st.error(f"❌ خطا در بارگذاری تصویر: {e}")
 
-            # نمایش وضعیت لایک
             if liked == 1:
                 st.success("👍 لایک شده")
             elif liked == 0:
@@ -141,7 +138,7 @@ else:
 
                 st.markdown("---")
     
-    # تب برای راهنما
+    # help tab
     with tab6:
         st.subheader("📖 راهنما")
         st.write("""
