@@ -5,18 +5,17 @@ import replicate
 import os
 from db import add_user_prompt, get_last_prompt_id, get_predefined_prompts, set_prompt_like_status
 
-# 👇 تنظیم توکن برای replicate
 os.environ["REPLICATE_API_TOKEN"] = "heheh"
 replicate.Client(api_token=os.getenv("REPLICATE_API_TOKEN"))
 
 def prompt_input_ui(user_id):
     st.subheader("📝 تولید تصویر با هوش مصنوعی")
 
-    # دریافت پرامپت‌های آماده از دیتابیس
+    # get defult prompt
     predefined = get_predefined_prompts()
     predefined_prompts = [p[1] for p in predefined]
 
-    # انتخاب یا نوشتن پرامپت
+    # choose/write prompt
     selected = st.selectbox("یا یکی از پرامپت‌های آماده رو انتخاب کن:", [""] + predefined_prompts)
     prompt = st.text_area("یا خودت یه پرامپت بنویس:", selected if selected else "")
 
@@ -35,13 +34,12 @@ def prompt_input_ui(user_id):
                         "height": 1024
                     }
                 )
-                image_url = output[0]  # خروجی یک لیست با یک URL است
+                image_url = output[0] 
 
-                # ذخیره‌سازی پرامپت کاربر
+                # save prompt in db
                 add_user_prompt(user_id, prompt, image_url)
                 prompt_id = get_last_prompt_id(user_id, prompt, image_url)
 
-                # ذخیره در session_state
                 st.session_state["generated_image"] = image_url
                 st.session_state["current_prompt"] = prompt
 
@@ -52,7 +50,7 @@ def prompt_input_ui(user_id):
         st.success("✅ تصویر با موفقیت تولید شد!")
         st.image(image_url)
 
-        # دکمه دانلود
+        # download button
         image_bytes = requests.get(image_url, timeout=30).content
         st.download_button(
             label="📥 دانلود تصویر",
@@ -61,7 +59,7 @@ def prompt_input_ui(user_id):
             mime="image/png"
         )
 
-        # لایک / دیسلایک
+        # like/dislike
         col1, col2 = st.columns(2)
         # with col1:
         #     if st.button("👍 لایک"):
